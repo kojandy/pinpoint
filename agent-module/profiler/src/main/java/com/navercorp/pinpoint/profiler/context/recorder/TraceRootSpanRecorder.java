@@ -67,14 +67,15 @@ public class TraceRootSpanRecorder implements SpanRecorder {
 
     @Override
     public void recordException(Throwable throwable) {
-        recordError();
+        recordException(true, throwable);
     }
 
     @Override
     public void recordException(boolean markError, Throwable throwable) {
-
+        if (markError) {
+            recordError();
+        }
     }
-
 
     @Override
     public void recordApiId(int apiId) {
