@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.bootstrap.context;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public interface SpanEventRecorder extends AttributeRecorder, FrameAttachment {
+public interface SpanEventRecorder extends FrameAttachment, AttributeRecorder, ErrorRecorder {
 
     void recordTime(boolean time);
 
@@ -66,6 +66,4 @@ public interface SpanEventRecorder extends AttributeRecorder, FrameAttachment {
      */
     @InterfaceStability.Evolving
     AsyncContext recordNextAsyncContext(boolean stateful);
-
-
 }

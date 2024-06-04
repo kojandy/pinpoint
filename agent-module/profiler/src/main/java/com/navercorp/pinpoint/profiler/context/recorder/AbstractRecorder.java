@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
+import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
@@ -33,7 +34,7 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public abstract class AbstractRecorder implements AttributeRecorder {
+public abstract class AbstractRecorder implements AttributeRecorder, ErrorRecorder {
 
     protected final StringMetaDataService stringMetaDataService;
     protected final SqlMetaDataService sqlMetaDataService;
@@ -50,9 +51,12 @@ public abstract class AbstractRecorder implements AttributeRecorder {
         this.exceptionRecorder = Objects.requireNonNull(exceptionRecorder, "exceptionRecorder");
     }
 
+    @Override
     public void recordError() {
         maskErrorCode(1);
     }
+
+    abstract void maskErrorCode(final int errorCode);
 
     public void recordException(Throwable throwable) {
         recordException(true, throwable);
@@ -77,8 +81,6 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     abstract void recordDetailedException(Throwable throwable);
 
     abstract void setExceptionInfo(int exceptionClassId, String exceptionMessage);
-
-    abstract void maskErrorCode(final int errorCode);
 
     public void recordApi(MethodDescriptor methodDescriptor) {
         if (methodDescriptor == null) {

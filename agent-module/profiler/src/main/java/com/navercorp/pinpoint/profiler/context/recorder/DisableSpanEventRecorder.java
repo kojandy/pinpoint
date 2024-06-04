@@ -32,6 +32,11 @@ public class DisableSpanEventRecorder implements SpanEventRecorder {
     }
 
     @Override
+    public void recordError() {
+
+    }
+
+    @Override
     public void recordTime(boolean time) {
 
     }
@@ -195,6 +200,4 @@ public class DisableSpanEventRecorder implements SpanEventRecorder {
     public Object detachFrameObject() {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
-
-
 }
