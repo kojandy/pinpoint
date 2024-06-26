@@ -19,13 +19,16 @@ import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
 import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
+import com.navercorp.pinpoint.profiler.context.error.ErrorInfo;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
+import com.navercorp.pinpoint.profiler.error.ErrorRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -52,11 +55,17 @@ public abstract class AbstractRecorder implements AttributeRecorder, ErrorRecord
     }
 
     @Override
-    public void recordError() {
+    public <T> void recordError(ErrorCategory category, T content) {
+        ErrorInfo<T> errorInfo = new ErrorInfo<>(category, content);
+        System.out.println("@@@@@@@@ error info recorded: " + errorInfo);
+
         maskErrorCode(1);
+        addErrorInfo(errorInfo);
     }
 
     abstract void maskErrorCode(final int errorCode);
+
+    abstract <T> void addErrorInfo(ErrorInfo<T> errorInfo);
 
     public void recordException(Throwable throwable) {
         recordException(true, throwable);
@@ -73,7 +82,7 @@ public abstract class AbstractRecorder implements AttributeRecorder, ErrorRecord
         setExceptionInfo(exceptionId, drop);
         if (markError) {
             if (!ignoreErrorHandler.handleError(throwable)) {
-                recordError();
+                recordError(ErrorCategory.EXCEPTION, throwable);
             }
         }
     }

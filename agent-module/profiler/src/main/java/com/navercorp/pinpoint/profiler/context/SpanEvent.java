@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.util.IntStringValue;
+import com.navercorp.pinpoint.profiler.context.error.ErrorInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,8 @@ public class SpanEvent extends DefaultFrameAttachment {
     private AsyncId asyncIdObject;
 
     private boolean executeQueryType;
+
+    private List<ErrorInfo<?>> errorInfos;
 
     public SpanEvent() {
     }
@@ -214,6 +217,17 @@ public class SpanEvent extends DefaultFrameAttachment {
         return executeQueryType;
     }
 
+    public List<ErrorInfo<?>> getErrorInfos() {
+        return errorInfos;
+    }
+
+    public void addErrorInfo(ErrorInfo<?> errorInfo) {
+        if (this.errorInfos == null) {
+            this.errorInfos = new ArrayList<>();
+        }
+        this.errorInfos.add(errorInfo);
+    }
+
     @Override
     public String toString() {
         return "SpanEvent{" +
@@ -221,7 +235,6 @@ public class SpanEvent extends DefaultFrameAttachment {
                 ", timeRecording=" + timeRecording +
                 ", startTime=" + startTime +
                 ", elapsedTime=" + elapsedTime +
-                ", asyncIdObject=" + asyncIdObject +
                 ", sequence=" + sequence +
                 ", serviceType=" + serviceType +
                 ", endPoint='" + endPoint + '\'' +
@@ -231,7 +244,9 @@ public class SpanEvent extends DefaultFrameAttachment {
                 ", destinationId='" + destinationId + '\'' +
                 ", apiId=" + apiId +
                 ", exceptionInfo=" + exceptionInfo +
+                ", asyncIdObject=" + asyncIdObject +
                 ", executeQueryType=" + executeQueryType +
-                "} ";
+                ", errorInfos=" + errorInfos +
+                '}';
     }
 }

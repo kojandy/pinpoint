@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
@@ -32,7 +33,7 @@ public class DisableSpanEventRecorder implements SpanEventRecorder {
     }
 
     @Override
-    public void recordError() {
+    public <T> void recordError(ErrorCategory category, T content) {
 
     }
 

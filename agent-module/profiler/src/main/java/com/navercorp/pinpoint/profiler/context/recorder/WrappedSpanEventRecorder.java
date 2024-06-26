@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
 import com.navercorp.pinpoint.profiler.context.SqlCountService;
+import com.navercorp.pinpoint.profiler.context.error.ErrorInfo;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -111,6 +113,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
         if (spanEvent.isExecuteQueryType()) {
             sqlCountService.recordSqlCount(this.traceRoot.getShared());
+            recordError(ErrorCategory.SQL_COUNT, 1);
         }
     }
 
@@ -166,6 +169,11 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     @Override
     void maskErrorCode(int errorCode) {
         this.traceRoot.getShared().maskErrorCode(errorCode);
+    }
+
+    @Override
+    <T> void addErrorInfo(ErrorInfo<T> errorInfo) {
+        spanEvent.addErrorInfo(errorInfo);
     }
 
     @Override
