@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ErrorType;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DataType;
@@ -70,15 +71,15 @@ public class DisableSpanRecorder implements SpanRecorder {
     }
 
     @Override
-    public void recordError() {
-        errorRecorder.recordError();
+    public void recordError(ErrorType errorType) {
+        errorRecorder.recordError(errorType);
     }
 
     @Override
     public void recordException(boolean markError, Throwable throwable) {
         if (markError) {
             if (!ignoreErrorHandler.handleError(throwable)) {
-                recordError();
+                recordError(ErrorType.EXCEPTION);
             }
         }
     }
