@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.ErrorInfoBo;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -166,6 +167,11 @@ public class SpanDecoderV0 implements SpanDecoder {
         if (bitField.isSetAnnotation()) {
             List<AnnotationBo> annotationBoList = readAnnotationList(buffer, decodingContext);
             span.setAnnotationBoList(annotationBoList);
+        }
+
+        if (bitField.isSetErrorInfo()) {
+            List<ErrorInfoBo> errorInfoBoList = readErrorInfoList(buffer);
+            span.setErrorInfoBoList(errorInfoBoList);
         }
 
         List<SpanEventBo> spanEventBoList = readSpanEvent(buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER);
@@ -367,6 +373,45 @@ public class SpanDecoderV0 implements SpanDecoder {
         return AnnotationBo.of(key, value);
     }
 
+    private List<ErrorInfoBo> readErrorInfoList(Buffer buffer) {
+        int errorInfoListSize = buffer.readVInt();
+        List<ErrorInfoBo> errorInfoBoList = new ArrayList<>(errorInfoListSize);
+
+        ErrorInfoBo prev = null;
+        for (int i = 0; i < errorInfoListSize; i++) {
+            ErrorInfoBo current;
+            if (i == 0) {
+                current = readFirstErrorInfoBo(buffer);
+            } else {
+                current = readDeltaErrorInfoBo(buffer, prev);
+            }
+
+            prev = current;
+            errorInfoBoList.add(current);
+        }
+        return errorInfoBoList;
+    }
+
+    private ErrorInfoBo readFirstErrorInfoBo(Buffer buffer) {
+        final int category = buffer.readSVInt();
+
+        byte valueType = buffer.readByte();
+        byte[] valueBytes = buffer.readPrefixedBytes();
+        Object value = transcoder.decode(valueType, valueBytes);
+
+        return new ErrorInfoBo(category, value);
+    }
+
+    private ErrorInfoBo readDeltaErrorInfoBo(Buffer buffer, ErrorInfoBo prev) {
+        final int prevCategory = prev.category();
+        int category = buffer.readSVInt() + prevCategory;
+
+        byte valueType = buffer.readByte();
+        byte[] valueBytes = buffer.readPrefixedBytes();
+        Object value = transcoder.decode(valueType, valueBytes);
+
+        return new ErrorInfoBo(category, value);
+    }
 
     private void readQualifier(BasicSpan basicSpan, Buffer buffer) {
         String applicationId = buffer.readPrefixedString();
