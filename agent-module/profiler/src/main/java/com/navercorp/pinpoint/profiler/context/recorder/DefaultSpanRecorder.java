@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.ErrorInfo;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
@@ -67,6 +68,11 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     void maskErrorCode(final int errorCode) {
         getShared().maskErrorCode(errorCode);
+    }
+
+    @Override
+    <T> void addErrorInfo(ErrorInfo<T> errorInfo) {
+        span.addErrorInfo(errorInfo);
     }
 
     @Override

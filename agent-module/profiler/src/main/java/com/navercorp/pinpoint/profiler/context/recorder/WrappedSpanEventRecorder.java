@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
 import com.navercorp.pinpoint.profiler.context.SqlCountService;
+import com.navercorp.pinpoint.profiler.context.ErrorInfo;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -166,6 +167,11 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     @Override
     void maskErrorCode(int errorCode) {
         this.traceRoot.getShared().maskErrorCode(errorCode);
+    }
+
+    @Override
+    <T> void addErrorInfo(ErrorInfo<T> errorInfo) {
+        spanEvent.addErrorInfo(errorInfo);
     }
 
     @Override

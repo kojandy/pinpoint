@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
+import com.navercorp.pinpoint.profiler.context.ErrorInfo;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -57,6 +58,8 @@ public abstract class AbstractRecorder implements AttributeRecorder, ErrorRecord
     }
 
     abstract void maskErrorCode(final int errorCode);
+
+    abstract <T> void addErrorInfo(ErrorInfo<T> errorInfo);
 
     public void recordException(Throwable throwable) {
         recordException(true, throwable);

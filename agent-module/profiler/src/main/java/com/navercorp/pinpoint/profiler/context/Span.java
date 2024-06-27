@@ -54,6 +54,8 @@ public class Span extends DefaultFrameAttachment implements SpanType {
 
     private IntStringValue exceptionInfo; // optional
 
+    private List<ErrorInfo<?>> errorInfos;
+
     public Span(final TraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
     }
@@ -195,22 +197,35 @@ public class Span extends DefaultFrameAttachment implements SpanType {
 
     }
 
+    public List<ErrorInfo<?>> getErrorInfos() {
+        return errorInfos;
+    }
+
+    public void addErrorInfo(ErrorInfo<?> errorInfo) {
+        if (this.errorInfos == null) {
+            this.errorInfos = new ArrayList<>();
+        }
+        this.errorInfos.add(errorInfo);
+    }
+
     @Override
     public String toString() {
         return "Span{" +
                 "timeRecording=" + timeRecording +
                 ", traceRoot=" + traceRoot +
                 ", startTime=" + startTime +
-                ", elapsed=" + elapsedTime +
+                ", elapsedTime=" + elapsedTime +
+                ", apiId=" + apiId +
                 ", serviceType=" + serviceType +
-                ", remoteAddr='" + remoteAddr + '\'' +
                 ", annotations=" + annotations +
                 ", spanEventList=" + spanEventList +
+                ", remoteAddr='" + remoteAddr + '\'' +
                 ", parentApplicationName='" + parentApplicationName + '\'' +
                 ", parentApplicationType=" + parentApplicationType +
                 ", acceptorHost='" + acceptorHost + '\'' +
-                ", apiId=" + apiId +
                 ", exceptionInfo=" + exceptionInfo +
+                ", errorInfos=" + errorInfos +
                 "} " + super.toString();
     }
+
 }
