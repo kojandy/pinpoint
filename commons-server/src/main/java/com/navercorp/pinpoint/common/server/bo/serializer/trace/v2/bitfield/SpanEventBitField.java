@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
 import com.navercorp.pinpoint.common.profiler.encoding.BitFieldUtils;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ErrorInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -47,6 +48,7 @@ public class SpanEventBitField {
     public static final int DEPTH_ENCODING_STRATEGY = 11;
 
     public static final int API_ENCODING_STRATEGY = 13;
+    public static final int SET_ERROR_INFO = 14;
 
 
     private short bitField = 0;
@@ -76,6 +78,11 @@ public class SpanEventBitField {
         final List<AnnotationBo> annotationBoList = spanEventBo.getAnnotationBoList();
         if (CollectionUtils.isNotEmpty(annotationBoList)) {
             bitField.setAnnotation(true);
+        }
+
+        final List<ErrorInfoBo> errorInfoBoList = spanEventBo.getErrorInfoBoList();
+        if (CollectionUtils.isNotEmpty(errorInfoBoList)) {
+            bitField.setErrorInfo(true);
         }
 
         if (spanEventBo.getNextAsyncId() != -1)  {
@@ -166,6 +173,14 @@ public class SpanEventBitField {
 
     void setAnnotation(boolean annotation) {
         setBit(SET_ANNOTATION, annotation);
+    }
+
+    public boolean isSetErrorInfo() {
+        return testBit(SET_ERROR_INFO);
+    }
+
+    void setErrorInfo(boolean errorInfo) {
+        setBit(SET_ERROR_INFO, errorInfo);
     }
 
 

@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.ErrorInfoBo;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -201,6 +202,11 @@ public class SpanEncoderV0 implements SpanEncoder {
             writeAnnotationList(buffer, annotationBoList, encodingContext);
         }
 
+        if (bitField.isSetErrorInfo()) {
+            List<ErrorInfoBo> errorInfoBoList = span.getErrorInfoBoList();
+            writeErrorInfoList(buffer, errorInfoBoList);
+        }
+
         final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
         writeSpanEventList(buffer, spanEventBoList, encodingContext);
 
@@ -242,6 +248,11 @@ public class SpanEncoderV0 implements SpanEncoder {
         if (bitField.isSetAnnotation()) {
             final List<AnnotationBo> annotationBoList = spanEventBo.getAnnotationBoList();
             writeAnnotationList(buffer, annotationBoList, encodingContext);
+        }
+
+        if (bitField.isSetErrorInfo()) {
+            final List<ErrorInfoBo> errorInfoBoList = spanEventBo.getErrorInfoBoList();
+            writeErrorInfoList(buffer, errorInfoBoList);
         }
 
         if (bitField.isSetNextAsyncId()) {
@@ -331,6 +342,11 @@ public class SpanEncoderV0 implements SpanEncoder {
             writeAnnotationList(buffer, annotationBoList, encodingContext);
         }
 
+        if (bitField.isSetErrorInfo()) {
+            List<ErrorInfoBo> errorInfoBoList = spanEventBo.getErrorInfoBoList();
+            writeErrorInfoList(buffer, errorInfoBoList);
+        }
+
         if (bitField.isSetNextAsyncId()) {
             buffer.putSVInt(spanEventBo.getNextAsyncId());
         }
@@ -387,5 +403,42 @@ public class SpanEncoderV0 implements SpanEncoder {
         buffer.putPrefixedBytes(valueBytes);
     }
 
+    private void writeErrorInfoList(Buffer buffer, List<ErrorInfoBo> errorInfoBoList) {
+        if (CollectionUtils.isEmpty(errorInfoBoList)) {
+            return;
+        }
 
+        buffer.putVInt(errorInfoBoList.size());
+
+        ErrorInfoBo prev = null;
+        for (int i = 0; i < errorInfoBoList.size(); i++) {
+            final ErrorInfoBo current = errorInfoBoList.get(i);
+            if (i == 0) {
+                buffer.putSVInt(current.category());
+
+                Object content = current.content();
+                byte contentTypeCode = transcoder.getTypeCode(content);
+                byte[] contentBytes = transcoder.encode(content, contentTypeCode);
+
+                buffer.putByte(contentTypeCode);
+                buffer.putPrefixedBytes(contentBytes);
+            } else {
+                writeDeltaErrorInfoBo(buffer, prev, current);
+            }
+            prev = current;
+        }
+    }
+
+    private void writeDeltaErrorInfoBo(Buffer buffer, ErrorInfoBo prev, ErrorInfoBo current) {
+        final int prevCategory = prev.category();
+        final int currentCategory = current.category();
+        buffer.putSVInt(currentCategory - prevCategory);
+
+        Object content = current.content();
+        byte contentTypeCode = transcoder.getTypeCode(content);
+        byte[] contentBytes = transcoder.encode(content, contentTypeCode);
+
+        buffer.putByte(contentTypeCode);
+        buffer.putPrefixedBytes(contentBytes);
+    }
 }

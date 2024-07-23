@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.ErrorInfoBo;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -168,6 +169,11 @@ public class SpanDecoderV0 implements SpanDecoder {
             span.setAnnotationBoList(annotationBoList);
         }
 
+        if (bitField.isSetErrorInfo()) {
+            List<ErrorInfoBo> errorInfoBoList = readErrorInfoList(buffer);
+            span.setErrorInfoBoList(errorInfoBoList);
+        }
+
         List<SpanEventBo> spanEventBoList = readSpanEvent(buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER);
         span.addSpanEventBoList(spanEventBoList);
     }
@@ -276,6 +282,11 @@ public class SpanDecoderV0 implements SpanDecoder {
             spanEventBo.setAnnotationBoList(annotationBoList);
         }
 
+        if (bitField.isSetErrorInfo()) {
+            List<ErrorInfoBo> errorInfoBoList = readErrorInfoList(buffer);
+            spanEventBo.setErrorInfoBoList(errorInfoBoList);
+        }
+
         if (bitField.isSetNextAsyncId()) {
             spanEventBo.setNextAsyncId(buffer.readSVInt());
         }
@@ -316,6 +327,11 @@ public class SpanDecoderV0 implements SpanDecoder {
         if (bitField.isSetAnnotation()) {
             List<AnnotationBo> annotationBoList = readAnnotationList(buffer, decodingContext);
             firstSpanEvent.setAnnotationBoList(annotationBoList);
+        }
+
+        if (bitField.isSetErrorInfo()) {
+            List<ErrorInfoBo> errorInfoBoList = readErrorInfoList(buffer);
+            firstSpanEvent.setErrorInfoBoList(errorInfoBoList);
         }
 
         if (bitField.isSetNextAsyncId()) {
@@ -367,6 +383,45 @@ public class SpanDecoderV0 implements SpanDecoder {
         return AnnotationBo.of(key, value);
     }
 
+    private List<ErrorInfoBo> readErrorInfoList(Buffer buffer) {
+        int errorInfoListSize = buffer.readVInt();
+        List<ErrorInfoBo> errorInfoBoList = new ArrayList<>(errorInfoListSize);
+
+        ErrorInfoBo prev = null;
+        for (int i = 0; i < errorInfoListSize; i++) {
+            ErrorInfoBo current;
+            if (i == 0) {
+                current = readFirstErrorInfoBo(buffer);
+            } else {
+                current = readDeltaErrorInfoBo(buffer, prev);
+            }
+
+            prev = current;
+            errorInfoBoList.add(current);
+        }
+        return errorInfoBoList;
+    }
+
+    private ErrorInfoBo readFirstErrorInfoBo(Buffer buffer) {
+        final int category = buffer.readSVInt();
+
+        byte contentType = buffer.readByte();
+        byte[] contentBytes = buffer.readPrefixedBytes();
+        Object content = transcoder.decode(contentType, contentBytes);
+
+        return new ErrorInfoBo(category, content);
+    }
+
+    private ErrorInfoBo readDeltaErrorInfoBo(Buffer buffer, ErrorInfoBo prev) {
+        final int prevCategory = prev.category();
+        int category = buffer.readSVInt() + prevCategory;
+
+        byte contentType = buffer.readByte();
+        byte[] contentBytes = buffer.readPrefixedBytes();
+        Object content = transcoder.decode(contentType, contentBytes);
+
+        return new ErrorInfoBo(category, content);
+    }
 
     private void readQualifier(BasicSpan basicSpan, Buffer buffer) {
         String applicationId = buffer.readPrefixedString();
