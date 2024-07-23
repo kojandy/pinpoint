@@ -36,6 +36,7 @@ public class SpanBitField {
     public static final int SET_FLAG = 4;
     public static final int SET_LOGGING_TRANSACTION_INFO = 5;
     public static final int SET_ANNOTATION = 6;
+    public static final int SET_ERROR_INFO = 7;
 
 
     private static final long ROOT_PARENT_SPAN_ID = -1;
@@ -75,6 +76,9 @@ public class SpanBitField {
         }
         if (CollectionUtils.isNotEmpty(spanBo.getAnnotationBoList())) {
             spanBitField.setAnnotation(true);
+        }
+        if (CollectionUtils.isNotEmpty(spanBo.getErrorInfoBoList())) {
+            spanBitField.setErrorInfo(true);
         }
 
         return spanBitField;
@@ -191,5 +195,13 @@ public class SpanBitField {
 
     public void setAnnotation(boolean annotation) {
         setBit(SET_ANNOTATION, annotation);
+    }
+
+    public boolean isSetErrorInfo() {
+        return testBit(SET_ERROR_INFO);
+    }
+
+    public void setErrorInfo(boolean errorInfo) {
+        setBit(SET_ERROR_INFO, errorInfo);
     }
 }

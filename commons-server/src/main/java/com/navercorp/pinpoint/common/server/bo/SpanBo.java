@@ -74,6 +74,8 @@ public class SpanBo implements Event, BasicSpan {
 
     private byte loggingTransactionInfo; //optional
 
+    private List<ErrorInfoBo> errorInfoBoList = new ArrayList<>();
+
 
     public SpanBo() {
     }
@@ -259,6 +261,17 @@ public class SpanBo implements Event, BasicSpan {
             this.spanChunkBoList = new ArrayList<>();
         }
         this.spanChunkBoList.add(asyncSpanBo);
+    }
+
+    public void setErrorInfoBoList(List<ErrorInfoBo> errorInfoBoList) {
+        if (errorInfoBoList == null) {
+            return;
+        }
+        this.errorInfoBoList = errorInfoBoList;
+    }
+
+    public List<ErrorInfoBo> getErrorInfoBoList() {
+        return errorInfoBoList;
     }
 
     public short getServiceType() {
