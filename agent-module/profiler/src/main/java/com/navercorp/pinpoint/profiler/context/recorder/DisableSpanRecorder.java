@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DataType;
@@ -67,7 +68,7 @@ public class DisableSpanRecorder implements SpanRecorder {
     }
 
     @Override
-    public void recordError() {
+    public <T> void recordError(ErrorCategory category, T content) {
         getShared().maskErrorCode(1);
     }
 
@@ -80,7 +81,7 @@ public class DisableSpanRecorder implements SpanRecorder {
     public void recordException(boolean markError, Throwable throwable) {
         if (markError) {
             if (!ignoreErrorHandler.handleError(throwable)) {
-                recordError();
+                recordError(ErrorCategory.EXCEPTION, throwable);
             }
         }
     }
