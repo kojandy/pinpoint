@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
+import com.navercorp.pinpoint.common.server.bo.ErrorInfoBo;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
+import com.navercorp.pinpoint.grpc.trace.PErrorInfo;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PLocalAsyncId;
 import com.navercorp.pinpoint.grpc.trace.PMessageEvent;
@@ -156,6 +158,9 @@ public class GrpcSpanBinder {
         List<AnnotationBo> annotationBoList = buildAnnotationList(pSpan.getAnnotationList());
         spanBo.setAnnotationBoList(annotationBoList);
 
+        List<ErrorInfoBo> errorInfoBoList = buildErrorInfoList(pSpan.getErrorInfoList());
+        spanBo.setErrorInfoBoList(errorInfoBoList);
+
         return spanBo;
     }
 
@@ -225,6 +230,9 @@ public class GrpcSpanBinder {
 
         List<AnnotationBo> annotationList = buildAnnotationList(pSpanEvent.getAnnotationList());
         spanEvent.setAnnotationBoList(annotationList);
+
+        List<ErrorInfoBo> errorInfoList = buildErrorInfoList(pSpanEvent.getErrorInfoList());
+        spanEvent.setErrorInfoBoList(errorInfoList);
 
         if (pSpanEvent.hasExceptionInfo()) {
             final PIntStringValue exceptionInfo = pSpanEvent.getExceptionInfo();
@@ -311,6 +319,12 @@ public class GrpcSpanBinder {
 
         boList.sort(AnnotationComparator.INSTANCE);
         return boList;
+    }
+
+    private List<ErrorInfoBo> buildErrorInfoList(List<PErrorInfo> pErrorInfoList) {
+        return pErrorInfoList.stream()
+                .map(ErrorInfoBo::new)
+                .toList();
     }
 
     // for test

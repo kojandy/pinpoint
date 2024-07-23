@@ -55,6 +55,8 @@ public class SpanEventBo implements Event {
 
     private int nextAsyncId = -1;
 
+    private List<ErrorInfoBo> errorInfoBoList;
+
 
     public SpanEventBo() {
     }
@@ -188,6 +190,16 @@ public class SpanEventBo implements Event {
         this.nextAsyncId = nextAsyncId;
     }
 
+    public List<ErrorInfoBo> getErrorInfoBoList() {
+        return errorInfoBoList;
+    }
+
+    public void setErrorInfoBoList(List<ErrorInfoBo> errorInfoBoList) {
+        if (errorInfoBoList == null) {
+            return;
+        }
+        this.errorInfoBoList = errorInfoBoList;
+    }
 
     @Override
     public String toString() {
@@ -208,6 +220,7 @@ public class SpanEventBo implements Event {
                 ", exceptionMessage='" + exceptionMessage + '\'' +
                 ", exceptionClass='" + exceptionClass + '\'' +
                 ", nextAsyncId=" + nextAsyncId +
+                ", errorInfoBoList=" + errorInfoBoList +
                 '}';
     }
 
@@ -232,6 +245,8 @@ public class SpanEventBo implements Event {
         private long nextSpanId = -1;
 
         private int nextAsyncId = -1;
+
+        private List<ErrorInfoBo> errorInfoBoList = new ArrayList<>();
 
         public Builder setVersion(int version) {
             this.version = version;
@@ -293,6 +308,11 @@ public class SpanEventBo implements Event {
             return this;
         }
 
+        public Builder addErrorInfoBo(ErrorInfoBo e) {
+            this.errorInfoBoList.add(e);
+            return this;
+        }
+
         public SpanEventBo build() {
             SpanEventBo result = new SpanEventBo();
             result.setVersion((byte) this.version);
@@ -307,6 +327,7 @@ public class SpanEventBo implements Event {
             result.setDepth(this.depth);
             result.setNextSpanId(this.nextSpanId);
             result.setNextAsyncId(this.nextAsyncId);
+            result.setErrorInfoBoList(this.errorInfoBoList);
             return result;
         }
 

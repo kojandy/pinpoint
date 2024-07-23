@@ -74,6 +74,8 @@ public class SpanBo implements Event, BasicSpan {
 
     private byte loggingTransactionInfo; //optional
 
+    private List<ErrorInfoBo> errorInfoBoList = new ArrayList<>();
+
 
     public SpanBo() {
     }
@@ -261,6 +263,17 @@ public class SpanBo implements Event, BasicSpan {
         this.spanChunkBoList.add(asyncSpanBo);
     }
 
+    public void setErrorInfoBoList(List<ErrorInfoBo> errorInfoBoList) {
+        if (errorInfoBoList == null) {
+            return;
+        }
+        this.errorInfoBoList = errorInfoBoList;
+    }
+
+    public List<ErrorInfoBo> getErrorInfoBoList() {
+        return errorInfoBoList;
+    }
+
     public short getServiceType() {
         return serviceType;
     }
@@ -410,6 +423,7 @@ public class SpanBo implements Event, BasicSpan {
                 ", acceptorHost='" + acceptorHost + '\'' +
                 ", remoteAddr='" + remoteAddr + '\'' +
                 ", loggingTransactionInfo=" + loggingTransactionInfo +
+                ", errorInfoBoList=" + errorInfoBoList +
                 '}';
     }
 
@@ -442,6 +456,7 @@ public class SpanBo implements Event, BasicSpan {
         private final List<AnnotationBo> annotationBoList = new ArrayList<>();
         private short flag; // optional
         private int errCode;
+        private final List<ErrorInfoBo> errorInfoBoList = new ArrayList<>();
 
         private final List<SpanEventBo> spanEventBoList = new ArrayList<>();
         private List<SpanChunkBo> spanChunkBoList;
@@ -598,6 +613,11 @@ public class SpanBo implements Event, BasicSpan {
             return this;
         }
 
+        public Builder addErrorInfoBo(ErrorInfoBo e) {
+            this.errorInfoBoList.add(e);
+            return this;
+        }
+
         public SpanBo build() {
             SpanBo result = new SpanBo();
             result.setVersion(this.version);
@@ -629,6 +649,7 @@ public class SpanBo implements Event, BasicSpan {
             result.setLoggingTransactionInfo(this.loggingTransactionInfo);
             result.setAnnotationBoList(this.annotationBoList);
             result.addSpanEventBoList(this.spanEventBoList);
+            result.setErrorInfoBoList(this.errorInfoBoList);
             return result;
         }
     }
