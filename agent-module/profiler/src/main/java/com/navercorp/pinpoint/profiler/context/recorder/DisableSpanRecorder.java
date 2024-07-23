@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DataType;
@@ -67,11 +68,6 @@ public class DisableSpanRecorder implements SpanRecorder {
     }
 
     @Override
-    public void recordError() {
-        getShared().maskErrorCode(1);
-    }
-
-    @Override
     public void recordException(Throwable throwable) {
         recordException(true, throwable);
     }
@@ -80,7 +76,7 @@ public class DisableSpanRecorder implements SpanRecorder {
     public void recordException(boolean markError, Throwable throwable) {
         if (markError) {
             if (!ignoreErrorHandler.handleError(throwable)) {
-                recordError();
+                maskErrorCode(1);
             }
         }
     }
@@ -234,5 +230,20 @@ public class DisableSpanRecorder implements SpanRecorder {
     @Override
     public Object detachFrameObject() {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+    }
+
+    @Override
+    public void maskErrorCode(int errorCode) {
+        getShared().maskErrorCode(errorCode);
+    }
+
+    @Override
+    public void recordError(ErrorCategory category, String content) {
+
+    }
+
+    @Override
+    public void recordError(ErrorCategory category, int content) {
+
     }
 }

@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
@@ -29,11 +30,6 @@ public class DisableSpanEventRecorder implements SpanEventRecorder {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.asyncContextFactory = Objects.requireNonNull(asyncContextFactory, "asyncContextFactory");
         this.asyncState = asyncState;
-    }
-
-    @Override
-    public void recordError() {
-
     }
 
     @Override
@@ -199,5 +195,20 @@ public class DisableSpanEventRecorder implements SpanEventRecorder {
     @Override
     public Object detachFrameObject() {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+    }
+
+    @Override
+    public void maskErrorCode(int errorCode) {
+
+    }
+
+    @Override
+    public void recordError(ErrorCategory category, String content) {
+
+    }
+
+    @Override
+    public void recordError(ErrorCategory category, int content) {
+
     }
 }
