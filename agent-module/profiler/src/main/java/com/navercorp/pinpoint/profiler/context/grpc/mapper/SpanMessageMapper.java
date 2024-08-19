@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
+import com.navercorp.pinpoint.grpc.trace.PErrorInfo;
 import com.navercorp.pinpoint.grpc.trace.PLocalAsyncId;
 import com.navercorp.pinpoint.grpc.trace.PMessageEvent;
 import com.navercorp.pinpoint.grpc.trace.PNextEvent;
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
+import com.navercorp.pinpoint.profiler.context.ErrorInfo;
 import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
@@ -57,6 +59,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         uses = {
                 TraceIdMapStructUtils.class,
                 AnnotationValueMapper.class,
+                ErrorContentMapper.class,
                 SpanUriGetter.class,
                 MapperUtils.class,
         }
@@ -85,7 +88,9 @@ public interface SpanMessageMapper {
 
             @Mapping(source = "span.annotations", target = "annotation"),
 
-            @Mapping(source = "span.spanEventList", target = "spanEvent")
+            @Mapping(source = "span.spanEventList", target = "spanEvent"),
+
+            @Mapping(source = "span.errorInfos", target = "errorInfo")
     })
     void map(Span span, short applicationServiceType, @MappingTarget PSpan.Builder builder);
 
@@ -135,7 +140,9 @@ public interface SpanMessageMapper {
             @Mapping(source = "asyncIdObject.asyncId", target = "asyncEvent"),
             @Mapping(source = "annotations", target = "annotation"),
 
-            @Mapping(target = "startElapsed", ignore = true)
+            @Mapping(target = "startElapsed", ignore = true),
+
+            @Mapping(source = "errorInfos", target = "errorInfo")
     })
     PSpanEvent map(SpanEvent spanEvent);
 
@@ -154,6 +161,11 @@ public interface SpanMessageMapper {
             @Mapping(source = ".", target = "value", qualifiedBy = AnnotationValueMapper.ToPAnnotationValue.class),
     })
     PAnnotation map(Annotation<?> annotation);
+
+    @Mappings({
+            @Mapping(source = ".", target = "content", qualifiedBy = ErrorContentMapper.ToPErrorContent.class)
+    })
+    PErrorInfo map(ErrorInfo<?> errorInfo);
 
     @Named("toAcceptEvent")
     @Mappings({

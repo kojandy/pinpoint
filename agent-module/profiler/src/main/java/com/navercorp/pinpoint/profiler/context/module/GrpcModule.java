@@ -43,6 +43,7 @@ import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentInfoMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentStatMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.AnnotationValueMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.CustomMetricMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ErrorContentMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.ExceptionMetaDataMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.JvmGcTypeMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.MetaDataMapper;
@@ -143,6 +144,7 @@ public class GrpcModule extends PrivateModule {
         bind(SpanUriGetter.class).toProvider(SpanUriGetterProvider.class).in(Scopes.SINGLETON);
 
         bind(AnnotationValueMapper.class).toInstance(Mappers.getMapper(AnnotationValueMapper.class));
+        bind(ErrorContentMapper.class).toInstance(Mappers.getMapper(ErrorContentMapper.class));
         bind(JvmGcTypeMapper.class).toInstance(Mappers.getMapper(JvmGcTypeMapper.class));
 
         bind(CustomMetricMapper.class).toInstance(Mappers.getMapper(CustomMetricMapper.class));
