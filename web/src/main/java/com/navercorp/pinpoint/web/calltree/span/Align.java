@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ErrorInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 
@@ -101,6 +102,10 @@ public interface Align {
     List<AnnotationBo> getAnnotationBoList();
 
     void setAnnotationBoList(List<AnnotationBo> annotationBoList);
+
+    List<ErrorInfoBo> getErrorInfoBoList();
+
+    void setErrorInfoBoList(List<ErrorInfoBo> errorInfoBoList);
 
     String getDestinationId();
 
