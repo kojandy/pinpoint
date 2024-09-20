@@ -21,10 +21,9 @@ import com.navercorp.pinpoint.common.profiler.sql.NormalizedSql;
 import com.navercorp.pinpoint.common.profiler.sql.SqlNormalizer;
 import com.navercorp.pinpoint.profiler.cache.Cache;
 import com.navercorp.pinpoint.profiler.cache.Result;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Objects;
 
 /**
  * @author emeroad
@@ -35,8 +34,8 @@ public class SimpleCachingSqlNormalizer implements CachingSqlNormalizer<ParsingR
     private final Cache<String, Result<Integer>> sqlCache;
     private final SqlNormalizer sqlNormalizer;
 
-    public SimpleCachingSqlNormalizer(Cache<String, Result<Integer>> sqlCache) {
-        this.sqlCache = Objects.requireNonNull(sqlCache, "sqlCache");
+    public SimpleCachingSqlNormalizer(int cacheSize) {
+        this.sqlCache = SimpleCache.newIdCache(cacheSize);
         this.sqlNormalizer = new DefaultSqlNormalizer();
     }
 

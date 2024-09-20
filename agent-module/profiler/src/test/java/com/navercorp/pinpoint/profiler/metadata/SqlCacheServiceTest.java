@@ -44,8 +44,7 @@ public class SqlCacheServiceTest {
 
     @BeforeEach
     public void setUp() {
-        SimpleCache<String, Integer> sqlCache = SimpleCache.newIdCache(100);
-        SimpleCachingSqlNormalizer cachingSqlNormalizer = new SimpleCachingSqlNormalizer(sqlCache);
+        SimpleCachingSqlNormalizer cachingSqlNormalizer = new SimpleCachingSqlNormalizer(100);
         sut = new SqlCacheService<>(dataSender, cachingSqlNormalizer, MAX_LENGTH);
     }
 
