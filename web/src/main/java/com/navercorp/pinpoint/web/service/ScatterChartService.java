@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -46,4 +47,5 @@ public interface ScatterChartService {
 
     ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter);
 
+    Flux<ScatterData> selectChunkedScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection);
 }

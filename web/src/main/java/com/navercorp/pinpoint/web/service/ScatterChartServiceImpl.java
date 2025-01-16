@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -145,6 +146,24 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         }
 
         return scatterData.build();
+    }
+
+    @Override
+    public Flux<ScatterData> selectChunkedScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
+        return Flux.create(sink -> {
+            Range remainingRange = range;
+            do {
+                ScatterData scatterData = selectScatterData(applicationName, remainingRange, xGroupUnit, yGroupUnit, limit, backwardDirection);
+                sink.next(scatterData);
+                if (backwardDirection) {
+                    remainingRange = Range.unchecked(remainingRange.getFrom(), scatterData.getOldestAcceptedTime() - 1);
+                } else {
+                    remainingRange = Range.unchecked(scatterData.getLatestAcceptedTime() + 1, remainingRange.getTo());
+                }
+                if (scatterData.getDotSize() < limit) break;
+            } while (true);
+            sink.complete();
+        });
     }
 
     private void populateAgentNameListOfList(Collection<List<SpanBo>> listOfList) {

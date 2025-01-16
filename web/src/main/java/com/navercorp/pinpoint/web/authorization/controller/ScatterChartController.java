@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
@@ -37,15 +38,16 @@ import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
@@ -110,7 +112,7 @@ public class ScatterChartController {
      * @return ScatterView.ResultView
      */
     @GetMapping(value = "/getScatterData")
-    public ScatterView.ResultView getScatterData(
+    public Flux<ServerSentEvent<ScatterView.ResultView>> getScatterData(
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
@@ -132,14 +134,26 @@ public class ScatterChartController {
         );
 
         if (StringUtils.isEmpty(filterText)) {
-            final ScatterView.DotView dotView = selectScatterData(
-                    applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);
-            return wrapScatterResultView(range, dotView);
+            return scatter.selectChunkedScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection)
+                    .map(scatterData -> {
+                        final boolean requestComplete = scatterData.getDotSize() < limit;
+                        ScatterView.DotView dotView = new ScatterView.DotView(scatterData, requestComplete);
+                        return wrapScatterResultView(range, dotView);
+                    })
+                    .map(resultView -> ServerSentEvent.builder(resultView).build());
         } else {
-            final ScatterView.DotView dotView = selectFilterScatterData(
-                    applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText);
-            return wrapScatterResultView(range, dotView);
+            return Flux.empty();
         }
+
+//        if (StringUtils.isEmpty(filterText)) {
+//            final ScatterView.DotView dotView = selectScatterData(
+//                    applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);
+//            return wrapScatterResultView(range, dotView);
+//        } else {
+//            final ScatterView.DotView dotView = selectFilterScatterData(
+//                    applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText);
+//            return wrapScatterResultView(range, dotView);
+//        }
     }
 
     private static ScatterView.ResultView wrapScatterResultView(Range range, ScatterView.DotView dotView) {
