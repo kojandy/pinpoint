@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
+import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
@@ -33,25 +34,24 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public abstract class AbstractRecorder implements AttributeRecorder {
+public abstract class AbstractRecorder implements AttributeRecorder, ErrorRecorder {
 
     protected final StringMetaDataService stringMetaDataService;
     protected final SqlMetaDataService sqlMetaDataService;
     protected final IgnoreErrorHandler ignoreErrorHandler;
     protected final ExceptionRecorder exceptionRecorder;
+    private final ErrorRecorder errorRecorder;
 
     public AbstractRecorder(final StringMetaDataService stringMetaDataService,
                             SqlMetaDataService sqlMetaDataService,
                             IgnoreErrorHandler ignoreErrorHandler,
-                            ExceptionRecorder exceptionRecorder) {
+                            ExceptionRecorder exceptionRecorder,
+                            ErrorRecorder errorRecorder) {
         this.stringMetaDataService = Objects.requireNonNull(stringMetaDataService, "stringMetaDataService");
         this.sqlMetaDataService = Objects.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
         this.ignoreErrorHandler = Objects.requireNonNull(ignoreErrorHandler, "ignoreErrorHandler");
         this.exceptionRecorder = Objects.requireNonNull(exceptionRecorder, "exceptionRecorder");
-    }
-
-    public void recordError() {
-        maskErrorCode(1);
+        this.errorRecorder = Objects.requireNonNull(errorRecorder, "errorRecorder");
     }
 
     public void recordException(boolean markError, Throwable throwable) {
@@ -73,8 +73,6 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     abstract void recordDetailedException(Throwable throwable);
 
     abstract void setExceptionInfo(int exceptionClassId, String exceptionMessage);
-
-    abstract void maskErrorCode(final int errorCode);
 
     public void recordApi(MethodDescriptor methodDescriptor) {
         if (methodDescriptor == null) {
@@ -203,4 +201,9 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     }
 
     abstract void addAnnotation(Annotation<?> annotation);
+
+    @Override
+    public void recordError() {
+        errorRecorder.recordError();
+    }
 }

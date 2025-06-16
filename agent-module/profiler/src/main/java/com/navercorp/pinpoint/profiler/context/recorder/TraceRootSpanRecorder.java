@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -35,9 +36,11 @@ public class TraceRootSpanRecorder implements SpanRecorder {
 
     private final TraceRoot traceRoot;
     private final UriTemplateFilter uriTemplateFilter = new UriTemplateFilter();
+    private final ErrorRecorder errorRecorder;
 
-    public TraceRootSpanRecorder(TraceRoot traceRoot) {
+    public TraceRootSpanRecorder(TraceRoot traceRoot, ErrorRecorder errorRecorder) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
+        this.errorRecorder = Objects.requireNonNull(errorRecorder, "errorRecorder");
     }
 
     @Override
@@ -62,7 +65,7 @@ public class TraceRootSpanRecorder implements SpanRecorder {
 
     @Override
     public void recordError() {
-        getShared().maskErrorCode(1);
+        errorRecorder.recordError();
     }
 
     @Override
