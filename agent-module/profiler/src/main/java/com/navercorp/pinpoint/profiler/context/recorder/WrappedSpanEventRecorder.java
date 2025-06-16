@@ -164,7 +164,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
 
     @Override
-    void maskErrorCode(int errorCode) {
+    public void maskErrorCode(int errorCode) {
         this.traceRoot.getShared().maskErrorCode(errorCode);
     }
 

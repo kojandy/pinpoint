@@ -67,8 +67,8 @@ public class DisableSpanRecorder implements SpanRecorder {
     }
 
     @Override
-    public void recordError() {
-        getShared().maskErrorCode(1);
+    public void maskErrorCode(int errorCode) {
+        getShared().maskErrorCode(errorCode);
     }
 
     @Override

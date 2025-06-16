@@ -65,7 +65,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     }
 
     @Override
-    void maskErrorCode(final int errorCode) {
+    public void maskErrorCode(final int errorCode) {
         getShared().maskErrorCode(errorCode);
     }
 
