@@ -28,14 +28,13 @@ import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
 import com.navercorp.pinpoint.profiler.context.SqlCountService;
+import com.navercorp.pinpoint.profiler.context.error.ErrorRecorder;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import jakarta.annotation.Nullable;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -43,15 +42,13 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEventRecorder, AutoCloseable {
-    private static final Logger logger = LogManager.getLogger(WrappedSpanEventRecorder.class);
-    private static final boolean isDebug = logger.isDebugEnabled();
-
-    private final SqlCountService sqlCountService;
-
     private final TraceRoot traceRoot;
     private final AsyncContextFactory asyncContextFactory;
     @Nullable
     private final AsyncState asyncState;
+
+    private final SqlCountService sqlCountService;
+    private final ErrorRecorder errorRecorder;
 
     private SpanEvent spanEvent;
 
@@ -79,6 +76,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         this.asyncContextFactory = Objects.requireNonNull(asyncContextFactory, "asyncContextFactory");
         this.asyncState = asyncState;
         this.sqlCountService = Objects.requireNonNull(sqlCountService, "sqlCountService");
+        this.errorRecorder = new ErrorRecorder(traceRoot);
     }
 
     public void setWrapped(final SpanEvent spanEvent) {
@@ -162,10 +160,9 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         return recordNextAsyncContext();
     }
 
-
     @Override
-    void maskErrorCode(int errorCode) {
-        this.traceRoot.getShared().maskErrorCode(errorCode);
+    protected void recordError() {
+        errorRecorder.recordError();
     }
 
     @Override

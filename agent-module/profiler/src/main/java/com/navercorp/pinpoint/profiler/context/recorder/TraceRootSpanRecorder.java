@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DataType;
+import com.navercorp.pinpoint.profiler.context.error.ErrorRecorder;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.uri.UriTemplateFilter;
@@ -35,9 +36,11 @@ public class TraceRootSpanRecorder implements SpanRecorder {
 
     private final TraceRoot traceRoot;
     private final UriTemplateFilter uriTemplateFilter = new UriTemplateFilter();
+    private final ErrorRecorder errorRecorder;
 
     public TraceRootSpanRecorder(TraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
+        this.errorRecorder = new ErrorRecorder(traceRoot);
     }
 
     @Override
@@ -62,7 +65,7 @@ public class TraceRootSpanRecorder implements SpanRecorder {
 
     @Override
     public void recordError() {
-        getShared().maskErrorCode(1);
+        errorRecorder.recordError();
     }
 
     @Override

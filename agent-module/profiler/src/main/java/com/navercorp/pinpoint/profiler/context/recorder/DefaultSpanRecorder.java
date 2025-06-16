@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.error.ErrorRecorder;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
@@ -38,6 +39,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
 
     private final Span span;
     private final UriTemplateFilter uriTemplateFilter = new UriTemplateFilter();
+    private final ErrorRecorder errorRecorder;
 
     public DefaultSpanRecorder(final Span span,
                                final StringMetaDataService stringMetaDataService,
@@ -46,12 +48,18 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
                                final ExceptionRecorder exceptionRecorder) {
         super(stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder);
         this.span = span;
+        this.errorRecorder = new ErrorRecorder(span.getTraceRoot());
     }
 
 
     @Override
     public void recordStartTime(long startTime) {
         span.setStartTime(startTime);
+    }
+
+    @Override
+    public void recordError() {
+        errorRecorder.recordError();
     }
 
     @Override
@@ -62,11 +70,6 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     void recordDetailedException(Throwable throwable) {
         // do nothing
-    }
-
-    @Override
-    void maskErrorCode(final int errorCode) {
-        getShared().maskErrorCode(errorCode);
     }
 
     @Override

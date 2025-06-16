@@ -50,9 +50,7 @@ public abstract class AbstractRecorder implements AttributeRecorder {
         this.exceptionRecorder = Objects.requireNonNull(exceptionRecorder, "exceptionRecorder");
     }
 
-    public void recordError() {
-        maskErrorCode(1);
-    }
+    abstract void recordError();
 
     public void recordException(Throwable throwable) {
         recordException(true, throwable);
@@ -77,8 +75,6 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     abstract void recordDetailedException(Throwable throwable);
 
     abstract void setExceptionInfo(int exceptionClassId, String exceptionMessage);
-
-    abstract void maskErrorCode(final int errorCode);
 
     public void recordApi(MethodDescriptor methodDescriptor) {
         if (methodDescriptor == null) {
