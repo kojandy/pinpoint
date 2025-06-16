@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
 import com.navercorp.pinpoint.profiler.context.SqlCountService;
+import com.navercorp.pinpoint.profiler.context.error.ErrorRecorder;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -61,8 +62,9 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
                                     SqlMetaDataService sqlMetaDataService,
                                     IgnoreErrorHandler ignoreErrorHandler,
                                     ExceptionRecorder exceptionRecorder,
-                                    SqlCountService sqlCountService) {
-        this(traceRoot, asyncContextFactory, null, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler, exceptionRecorder, sqlCountService);
+                                    SqlCountService sqlCountService,
+                                    ErrorRecorder errorRecorder) {
+        this(traceRoot, asyncContextFactory, null, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler, exceptionRecorder, sqlCountService, errorRecorder);
     }
 
     public WrappedSpanEventRecorder(TraceRoot traceRoot,
@@ -72,8 +74,9 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
                                     final SqlMetaDataService sqlMetaCacheService,
                                     final IgnoreErrorHandler errorHandler,
                                     final ExceptionRecorder exceptionRecorder,
-                                    final SqlCountService sqlCountService) {
-        super(stringMetaDataService, sqlMetaCacheService, errorHandler, exceptionRecorder);
+                                    final SqlCountService sqlCountService,
+                                    final ErrorRecorder errorRecorder) {
+        super(stringMetaDataService, sqlMetaCacheService, errorHandler, exceptionRecorder, errorRecorder);
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
 
         this.asyncContextFactory = Objects.requireNonNull(asyncContextFactory, "asyncContextFactory");

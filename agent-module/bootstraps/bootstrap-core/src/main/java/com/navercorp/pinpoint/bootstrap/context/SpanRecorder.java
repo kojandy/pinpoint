@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.bootstrap.context;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public interface SpanRecorder extends FrameAttachment, AttributeRecorder, ErrorRecorder {
+public interface SpanRecorder extends FrameAttachment, AttributeRecorder {
     boolean canSampled();
 
     boolean isRoot();
@@ -11,6 +11,8 @@ public interface SpanRecorder extends FrameAttachment, AttributeRecorder, ErrorR
     void recordStartTime(long startTime);
 
     void recordTime(boolean autoTimeRecoding);
+
+    void recordError();
 
     void recordException(Throwable throwable);
 
