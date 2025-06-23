@@ -14,6 +14,8 @@ public interface SpanRecorder extends FrameAttachment, AttributeRecorder {
     void recordTime(boolean autoTimeRecoding);
 
     void recordError();
+    
+    void recordError(ErrorCategory errorCategory);
 
     void recordException(Throwable throwable);
 

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.plugin.http;
 
 import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
+import com.navercorp.pinpoint.bootstrap.context.ErrorCategory;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
@@ -54,7 +55,7 @@ public class HttpStatusCodeRecorder {
             logger.debug("Record HTTP status code annotation. statusCode={}", statusCode);
         }
         if (this.errors.isErrorCode(statusCode)) {
-            spanRecorder.recordError();
+            spanRecorder.recordError(ErrorCategory.HTTP_STATUS_CODE);
             if (isDebug) {
                 logger.debug("Record https.status.code error code:{}", statusCode);
             }

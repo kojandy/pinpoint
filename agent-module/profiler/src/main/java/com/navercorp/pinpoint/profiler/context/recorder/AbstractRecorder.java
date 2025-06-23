@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
+import com.navercorp.pinpoint.bootstrap.context.ErrorCategory;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
@@ -23,7 +24,9 @@ import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
-import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.errorhandler.DefaultErrorRecorder;
+import com.navercorp.pinpoint.profiler.context.errorhandler.ErrorCategoryManager;
+import com.navercorp.pinpoint.profiler.context.errorhandler.ErrorRecorder;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -33,25 +36,32 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public abstract class AbstractRecorder implements AttributeRecorder {
+public abstract class AbstractRecorder implements AttributeRecorder, DefaultErrorRecorder.ErrorMarker {
 
     protected final StringMetaDataService stringMetaDataService;
     protected final SqlMetaDataService sqlMetaDataService;
-    protected final IgnoreErrorHandler ignoreErrorHandler;
+    protected final ErrorRecorder errorRecorder;
+    protected final ErrorCategoryManager errorCategoryManager;
     protected final ExceptionRecorder exceptionRecorder;
 
-    public AbstractRecorder(final StringMetaDataService stringMetaDataService,
+    public AbstractRecorder(StringMetaDataService stringMetaDataService,
                             SqlMetaDataService sqlMetaDataService,
-                            IgnoreErrorHandler ignoreErrorHandler,
+                            ErrorRecorder errorRecorder,
+                            ErrorCategoryManager errorCategoryManager,
                             ExceptionRecorder exceptionRecorder) {
         this.stringMetaDataService = Objects.requireNonNull(stringMetaDataService, "stringMetaDataService");
         this.sqlMetaDataService = Objects.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
-        this.ignoreErrorHandler = Objects.requireNonNull(ignoreErrorHandler, "ignoreErrorHandler");
+        this.errorRecorder = Objects.requireNonNull(errorRecorder, "errorRecorder");
+        this.errorCategoryManager = Objects.requireNonNull(errorCategoryManager, "errorCategoryManager");
         this.exceptionRecorder = Objects.requireNonNull(exceptionRecorder, "exceptionRecorder");
     }
 
     public void recordError() {
-        maskErrorCode(1);
+        recordError(ErrorCategory.CUSTOM);
+    }
+    
+    public void recordError(ErrorCategory category) {
+        errorRecorder.recordError(category);
     }
 
     public void recordException(Throwable throwable) {
@@ -68,10 +78,15 @@ public abstract class AbstractRecorder implements AttributeRecorder {
         final int exceptionId = stringMetaDataService.cacheString(throwable.getClass().getName());
         setExceptionInfo(exceptionId, drop);
         if (markError) {
-            if (!ignoreErrorHandler.handleError(throwable)) {
-                recordError();
+            if (errorCategoryManager.shouldRecordException(throwable)) {
+                maskErrorCode(1);
             }
         }
+    }
+
+    @Override
+    public void markError(int errorCode) {
+        maskErrorCode(errorCode);
     }
 
     abstract void recordDetailedException(Throwable throwable);
