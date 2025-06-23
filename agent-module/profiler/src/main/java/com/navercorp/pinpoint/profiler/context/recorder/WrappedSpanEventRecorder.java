@@ -48,7 +48,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     private final AsyncState asyncState;
 
     private final SqlCountService sqlCountService;
-    private final ErrorRecorder errorRecorder;
 
     private SpanEvent spanEvent;
 
@@ -70,13 +69,12 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
                                     final IgnoreErrorHandler errorHandler,
                                     final ExceptionRecorder exceptionRecorder,
                                     final SqlCountService sqlCountService) {
-        super(stringMetaDataService, sqlMetaCacheService, errorHandler, exceptionRecorder);
+        super(stringMetaDataService, sqlMetaCacheService, errorHandler, exceptionRecorder, new ErrorRecorder(traceRoot));
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
 
         this.asyncContextFactory = Objects.requireNonNull(asyncContextFactory, "asyncContextFactory");
         this.asyncState = asyncState;
         this.sqlCountService = Objects.requireNonNull(sqlCountService, "sqlCountService");
-        this.errorRecorder = new ErrorRecorder(traceRoot);
     }
 
     public void setWrapped(final SpanEvent spanEvent) {
@@ -158,11 +156,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
             return asyncContextFactory.newAsyncContext(this.traceRoot, asyncIdObject, isDisabled, asyncState);
         }
         return recordNextAsyncContext();
-    }
-
-    @Override
-    protected void recordError() {
-        errorRecorder.recordError();
     }
 
     @Override

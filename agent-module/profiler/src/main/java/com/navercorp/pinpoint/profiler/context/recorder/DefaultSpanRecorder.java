@@ -39,27 +39,20 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
 
     private final Span span;
     private final UriTemplateFilter uriTemplateFilter = new UriTemplateFilter();
-    private final ErrorRecorder errorRecorder;
 
     public DefaultSpanRecorder(final Span span,
                                final StringMetaDataService stringMetaDataService,
                                final SqlMetaDataService sqlMetaDataService,
                                final IgnoreErrorHandler errorHandler,
                                final ExceptionRecorder exceptionRecorder) {
-        super(stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder);
+        super(stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, new ErrorRecorder(span.getTraceRoot()));
         this.span = span;
-        this.errorRecorder = new ErrorRecorder(span.getTraceRoot());
     }
 
 
     @Override
     public void recordStartTime(long startTime) {
         span.setStartTime(startTime);
-    }
-
-    @Override
-    public void recordError() {
-        errorRecorder.recordError();
     }
 
     @Override

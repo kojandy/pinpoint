@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
+import com.navercorp.pinpoint.profiler.context.error.ErrorRecorder;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -39,18 +40,23 @@ public abstract class AbstractRecorder implements AttributeRecorder {
     protected final SqlMetaDataService sqlMetaDataService;
     protected final IgnoreErrorHandler ignoreErrorHandler;
     protected final ExceptionRecorder exceptionRecorder;
+    protected final ErrorRecorder errorRecorder;
 
     public AbstractRecorder(final StringMetaDataService stringMetaDataService,
                             SqlMetaDataService sqlMetaDataService,
                             IgnoreErrorHandler ignoreErrorHandler,
-                            ExceptionRecorder exceptionRecorder) {
+                            ExceptionRecorder exceptionRecorder,
+                            ErrorRecorder errorRecorder) {
         this.stringMetaDataService = Objects.requireNonNull(stringMetaDataService, "stringMetaDataService");
         this.sqlMetaDataService = Objects.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
         this.ignoreErrorHandler = Objects.requireNonNull(ignoreErrorHandler, "ignoreErrorHandler");
         this.exceptionRecorder = Objects.requireNonNull(exceptionRecorder, "exceptionRecorder");
+        this.errorRecorder = Objects.requireNonNull(errorRecorder, "errorRecorder");
     }
 
-    abstract void recordError();
+    public void recordError() {
+        errorRecorder.recordError();
+    }
 
     public void recordException(Throwable throwable) {
         recordException(true, throwable);
