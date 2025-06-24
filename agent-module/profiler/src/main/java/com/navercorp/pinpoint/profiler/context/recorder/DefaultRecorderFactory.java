@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SqlCountService;
+import com.navercorp.pinpoint.profiler.context.error.ErrorRecorder;
+import com.navercorp.pinpoint.profiler.context.error.ErrorRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorderFactory;
@@ -44,6 +46,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
     private final IgnoreErrorHandler errorHandler;
 
     private final ExceptionRecorderFactory exceptionRecorderFactory;
+    private final ErrorRecorderFactory errorRecorderFactory;
     private final SqlCountService sqlCountService;
 
     @Inject
@@ -52,12 +55,14 @@ public class DefaultRecorderFactory implements RecorderFactory {
                                   SqlMetaDataService sqlMetaDataService,
                                   IgnoreErrorHandler errorHandler,
                                   ExceptionRecorderFactory exceptionRecorderFactory,
+                                  ErrorRecorderFactory errorRecorderFactory,
                                   SqlCountService sqlCountService) {
         this.asyncContextFactoryProvider = Objects.requireNonNull(asyncContextFactoryProvider, "asyncContextFactoryProvider");
         this.stringMetaDataService = Objects.requireNonNull(stringMetaDataService, "stringMetaDataService");
         this.sqlMetaDataService = Objects.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
         this.errorHandler = Objects.requireNonNull(errorHandler, "errorHandler");
         this.exceptionRecorderFactory = Objects.requireNonNull(exceptionRecorderFactory, "exceptionRecorderFactory");
+        this.errorRecorderFactory = Objects.requireNonNull(errorRecorderFactory, "errorRecorderFactory");
         this.sqlCountService = Objects.requireNonNull(sqlCountService, "sqlCountService");
     }
 
@@ -66,7 +71,9 @@ public class DefaultRecorderFactory implements RecorderFactory {
         Objects.requireNonNull(span, "span");
 
         ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(span.getTraceRoot());
-        return new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder);
+        ErrorRecorder errorRecorder = errorRecorderFactory.newRecorder(span.getTraceRoot());
+
+        return new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, errorRecorder);
     }
 
     @Override
@@ -89,9 +96,10 @@ public class DefaultRecorderFactory implements RecorderFactory {
 
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(traceRoot);
+        ErrorRecorder errorRecorder = errorRecorderFactory.newRecorder(traceRoot);
 
         return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory,
-                stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);
+                stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, errorRecorder, sqlCountService);
     }
 
     @Override
@@ -101,9 +109,10 @@ public class DefaultRecorderFactory implements RecorderFactory {
 
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(traceRoot);
+        ErrorRecorder errorRecorder = errorRecorderFactory.newRecorder(traceRoot);
 
         return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, asyncState,
-                stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);
+                stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, errorRecorder, sqlCountService);
     }
 
     @Override

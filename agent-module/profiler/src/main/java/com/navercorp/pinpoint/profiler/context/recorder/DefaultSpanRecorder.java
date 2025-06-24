@@ -44,8 +44,9 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
                                final StringMetaDataService stringMetaDataService,
                                final SqlMetaDataService sqlMetaDataService,
                                final IgnoreErrorHandler errorHandler,
-                               final ExceptionRecorder exceptionRecorder) {
-        super(stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, new ErrorRecorder(span.getTraceRoot()));
+                               final ExceptionRecorder exceptionRecorder,
+                               final ErrorRecorder errorRecorder) {
+        super(stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, errorRecorder);
         this.span = span;
     }
 
