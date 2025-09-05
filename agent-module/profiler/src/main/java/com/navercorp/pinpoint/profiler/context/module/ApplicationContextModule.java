@@ -45,6 +45,8 @@ import com.navercorp.pinpoint.profiler.context.SqlCountService;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalBinder;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.error.DefaultErrorRecorderFactory;
+import com.navercorp.pinpoint.profiler.context.error.ErrorRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandlerProvider;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
@@ -225,7 +227,7 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(SpanFactory.class).to(DefaultSpanFactory.class).in(Scopes.SINGLETON);
 
-
+        bind(ErrorRecorderFactory.class).to(DefaultErrorRecorderFactory.class).in(Scopes.SINGLETON);
         bind(RecorderFactory.class).to(DefaultRecorderFactory.class).in(Scopes.SINGLETON);
 
         bind(BaseTraceFactory.class).toProvider(BaseTraceFactoryProvider.class).in(Scopes.SINGLETON);
