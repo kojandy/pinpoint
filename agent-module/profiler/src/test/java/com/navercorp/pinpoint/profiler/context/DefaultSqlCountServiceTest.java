@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
-import com.navercorp.pinpoint.common.trace.ErrorType;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.profiler.context.id.DefaultShared;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +33,6 @@ class DefaultSqlCountServiceTest {
         }
 
         // then
-        verify(errorRecorder).recordError(ErrorType.SQL);
+        verify(errorRecorder).recordError(ErrorCategory.SQL);
     }
 }

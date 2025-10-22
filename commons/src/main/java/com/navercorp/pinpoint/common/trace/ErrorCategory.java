@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.trace;
 
-public enum ErrorType {
+public enum ErrorCategory {
     UNKNOWN(1),
     EXCEPTION(2),
     HTTP_STATUS(3),
@@ -8,7 +8,7 @@ public enum ErrorType {
 
     private final int code;
 
-    ErrorType(int code) {
+    ErrorCategory(int code) {
         this.code = code;
     }
 

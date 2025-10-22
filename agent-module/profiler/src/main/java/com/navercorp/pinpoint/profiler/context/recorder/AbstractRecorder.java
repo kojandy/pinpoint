@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
 import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ErrorType;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -66,7 +66,7 @@ public abstract class AbstractRecorder implements AttributeRecorder, ErrorRecord
         setExceptionInfo(exceptionId, drop);
         if (markError) {
             if (!ignoreErrorHandler.handleError(throwable)) {
-                recordError(ErrorType.EXCEPTION);
+                recordError(ErrorCategory.EXCEPTION);
             }
         }
     }
@@ -204,7 +204,7 @@ public abstract class AbstractRecorder implements AttributeRecorder, ErrorRecord
     abstract void addAnnotation(Annotation<?> annotation);
 
     @Override
-    public void recordError(ErrorType errorType) {
-        errorRecorder.recordError(errorType);
+    public void recordError(ErrorCategory errorCategory) {
+        errorRecorder.recordError(errorCategory);
     }
 }

@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
-import com.navercorp.pinpoint.common.trace.ErrorType;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 
 public interface ErrorRecorder {
-    void recordError(ErrorType errorType);
+    void recordError(ErrorCategory errorCategory);
 }

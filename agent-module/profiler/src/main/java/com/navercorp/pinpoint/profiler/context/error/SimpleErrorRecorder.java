@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.context.error;
 
 import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
-import com.navercorp.pinpoint.common.trace.ErrorType;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 
 public class SimpleErrorRecorder implements ErrorRecorder {
@@ -12,7 +12,7 @@ public class SimpleErrorRecorder implements ErrorRecorder {
     }
 
     @Override
-    public void recordError(ErrorType errorType) {
+    public void recordError(ErrorCategory errorCategory) {
         traceRoot.getShared().maskErrorCode(1);
     }
 }
