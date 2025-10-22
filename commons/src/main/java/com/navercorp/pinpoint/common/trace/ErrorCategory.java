@@ -1,18 +1,18 @@
 package com.navercorp.pinpoint.common.trace;
 
 public enum ErrorCategory {
-    UNKNOWN(1),
-    EXCEPTION(2),
-    HTTP_STATUS(3),
-    SQL(4);
+    UNKNOWN(1 << 0),
+    EXCEPTION(1 << 1),
+    HTTP_STATUS(1 << 2),
+    SQL(1 << 3);
 
-    private final int code;
+    private final int bitMask;
 
-    ErrorCategory(int code) {
-        this.code = code;
+    ErrorCategory(int bitMask) {
+        this.bitMask = bitMask;
     }
 
-    public int getCode() {
-        return code;
+    public int getBitMask() {
+        return bitMask;
     }
 }
