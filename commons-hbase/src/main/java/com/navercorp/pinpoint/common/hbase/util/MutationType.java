@@ -23,7 +23,8 @@ public enum MutationType {
     PUT,
     GET,
     DELETE,
-    CHECK_AND_MUTATE;
+    CHECK_AND_MUTATE,
+    SCAN;
 
 
     MutationType() {

@@ -366,10 +366,12 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
         Objects.requireNonNull(scans, "scans");
         Objects.requireNonNull(action, "action");
 
-        return execute(tableName, table -> {
+        List<CompletableFuture<T>> futures = execute(tableName, table -> {
             // TODO: implement here
             throw new UnsupportedOperationException();
         });
+        futureDecorator.apply(futures, tableName, MutationType.SCAN);
+        return futures;
     }
 
     public <T> T executeDistributedScan(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
