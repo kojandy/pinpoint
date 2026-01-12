@@ -361,6 +361,17 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
         });
     }
 
+    public <T> List<CompletableFuture<T>> findParallelFuture(final TableName tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(scans, "scans");
+        Objects.requireNonNull(action, "action");
+
+        return execute(tableName, table -> {
+            // TODO: implement here
+            throw new UnsupportedOperationException();
+        });
+    }
+
     public <T> T executeDistributedScan(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
         Objects.requireNonNull(tableName, "tableName");
         Objects.requireNonNull(scan, "scan");
